@@ -27,12 +27,12 @@ func main() {
 		}
 
 		client := &Client{
-			conn:   conn,
+			conn:   &conn,
 			Server: self,
 		}
 		go func() {
 			defer func() {
-				client.conn.Close()
+				(*client.conn).Close()
 				// TODO: Unified client clean-up
 			}()
 			defer func() {
@@ -47,13 +47,13 @@ func main() {
 }
 
 func (client *Client) handleConnection() {
-	reader := bufio.NewReader(client.conn)
+	reader := bufio.NewReader(*client.conn)
 messageLoop:
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			slog.Error("error while reading from connection", "error", err)
-			client.conn.Close()
+			(*client.conn).Close()
 			return
 		}
 		msg, err := parseIRCMsg(line)

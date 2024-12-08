@@ -42,11 +42,17 @@ func handleClientCap(msg RMsg, client *Client) error {
 			}
 			_, ok := Caps[c]
 			if ok {
-				client.Send(MakeMsg(self, "CAP", client.Nick, "ACK", c))
+				err := client.Send(MakeMsg(self, "CAP", client.Nick, "ACK", c))
+				if err != nil {
+					return err
+				}
 				client.Caps[c] = struct{}{}
 				// TODO: This is terrible
 			} else {
-				client.Send(MakeMsg(self, "CAP", client.Nick, "NAK", c))
+				err := client.Send(MakeMsg(self, "CAP", client.Nick, "NAK", c))
+				if err != nil {
+					return err
+				}
 			}
 		}
 	case "END":
@@ -55,7 +61,10 @@ func handleClientCap(msg RMsg, client *Client) error {
 			return nil
 		}
 		client.State = ClientStateCapabilitiesFinished
-		client.checkRegistration()
+		err := client.checkRegistration()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

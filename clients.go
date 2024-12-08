@@ -16,6 +16,7 @@ type Client struct {
 	Gecos  string
 	Host   string
 	Caps   map[string]struct{}
+	Extra  map[string]any
 	Server Server
 	State  ClientState
 }
@@ -55,8 +56,10 @@ func (client *Client) Teardown() {
 	if !uidToClient.CompareAndDelete(client.UID, client) {
 		slog.Error("uid inconsistent", "uid", client.UID, "client", client)
 	}
-	if !nickToClient.CompareAndDelete(client.Nick, client) {
-		slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+	if (client.State >= ClientStateRegistered || client.Nick != "*") {
+		if !nickToClient.CompareAndDelete(client.Nick, client) {
+			slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+		}
 	}
 }
 
@@ -67,6 +70,7 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 		State:  ClientStatePreRegistration,
 		Nick:   "*",
 		Caps:   make(map[string]struct{}),
+		Extra:  make(map[string]any),
 	}
 	for range 10 {
 		uid_ := []byte(self.SID)

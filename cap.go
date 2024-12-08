@@ -4,9 +4,7 @@ import (
 	"strings"
 )
 
-var Caps = map[string]string{
-	"sasl": "PLAIN,EXTERNAL",
-}
+var Caps = map[string]string{}
 
 var capls string
 

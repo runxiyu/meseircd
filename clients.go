@@ -17,7 +17,7 @@ type Client struct {
 	Host   string
 	Caps   map[string]struct{}
 	Extra  map[string]any
-	Server Server
+	Server *Server
 	State  ClientState
 }
 
@@ -40,12 +40,12 @@ func (client *Client) SendRaw(s string) error {
 	return nil
 }
 
-func (client Client) ClientSource() string {
+func (client *Client) ClientSource() string {
 	// TODO: Edge cases where these aren't available
 	return client.Nick + "!" + client.Ident + "@" + client.Host
 }
 
-func (client Client) ServerSource() string {
+func (client *Client) ServerSource() string {
 	return client.CID
 }
 

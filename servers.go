@@ -16,7 +16,7 @@ func (server *Server) Send(msg SMsg) error {
 }
 
 func (server *Server) SendRaw(s string) error {
-	if server == &self {
+	if server == self {
 		return ErrSendToSelf
 	}
 	if server.conn == nil {
@@ -34,12 +34,12 @@ func (server *Server) SendRaw(s string) error {
 	return nil
 }
 
-func (server Server) ClientSource() string {
+func (server *Server) ClientSource() string {
 	return server.Name
 }
 
-func (server Server) ServerSource() string {
+func (server *Server) ServerSource() string {
 	return server.SID
 }
 
-var self Server
+var self *Server

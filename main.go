@@ -16,7 +16,7 @@ func main() {
 
 	setupCapls()
 
-	self = Server{
+	self = &Server{
 		conn: nil,
 		SID:  "001",
 		Name: "irc.runxiyu.org",

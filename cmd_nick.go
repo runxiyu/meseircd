@@ -1,5 +1,9 @@
 package main
 
+import (
+	"log/slog"
+)
+
 func init() {
 	commandHandlers["NICK"] = handleClientNick
 }
@@ -9,14 +13,20 @@ func handleClientNick(msg RMsg, client *Client) bool {
 		client.Send(MakeMsg(self, ERR_NEEDMOREPARAMS, "NICK", "Not enough parameters"))
 		return true
 	}
-	_, exists := nickToClient.LoadOrStore(msg.Params[0], client)
+	already, exists := nickToClient.LoadOrStore(msg.Params[0], client)
 	if exists {
-		client.Send(MakeMsg(self, ERR_NICKNAMEINUSE, client.Nick, msg.Params[0], "Nickname is already in use"))
+		if already != client {
+			client.Send(MakeMsg(self, ERR_NICKNAMEINUSE, client.Nick, msg.Params[0], "Nickname is already in use"))
+		}
 	} else {
-		client.Nick = msg.Params[0]
 		if client.State == ClientStateRegistered {
+			if !nickToClient.CompareAndDelete(client.Nick, client) {
+				slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+				return false
+			}
 			client.Send(MakeMsg(client, "NICK", msg.Params[0]))
 		}
+		client.Nick = msg.Params[0]
 	}
 	return true
 }

@@ -40,6 +40,7 @@ func main() {
 		// TODO: Add to the UID table and make actually unique UIDs
 		go func() {
 			defer func() {
+				client.Teardown()
 				(*client.conn).Close()
 				// TODO: Unified client clean-up
 			}()

@@ -45,6 +45,18 @@ func (client Client) ServerSource() string {
 	return client.UID
 }
 
+func (client *Client) Teardown() {
+	if client.conn != nil {
+		(*client.conn).Close()
+	}
+	if !uidToClient.CompareAndDelete(client.UID, client) {
+		slog.Error("uid inconsistent", "uid", client.UID, "client", client)
+	}
+	if !nickToClient.CompareAndDelete(client.Nick, client) {
+		slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+	}
+}
+
 type ClientState uint8
 
 const (

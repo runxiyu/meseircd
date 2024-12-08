@@ -13,4 +13,6 @@ var (
 	ErrNotConnectedServer = errors.New("not connected server")
 	ErrSendToSelf         = errors.New("attempt to send message to self")
 	ErrUIDBusy            = errors.New("too many busy uids")
+	ErrInconsistent       = errors.New("inconsistent state")
+	ErrCallState          = errors.New("invalid call state")
 )

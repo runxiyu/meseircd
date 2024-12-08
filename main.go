@@ -65,28 +65,44 @@ messageLoop:
 			case ErrEmptyMessage:
 				continue messageLoop
 			case ErrIllegalByte:
-				client.Send(MakeMsg(self, "ERROR", err.Error()))
-				break messageLoop
+				err := client.Send(MakeMsg(self, "ERROR", err.Error()))
+				if err != nil {
+					slog.Error("error while reporting illegal byte", "error", err, "client", client)
+					return
+				}
+				return
 			case ErrTagsTooLong:
 				fallthrough
 			case ErrBodyTooLong:
-				client.Send(MakeMsg(self, ERR_INPUTTOOLONG, err.Error()))
+				err := client.Send(MakeMsg(self, ERR_INPUTTOOLONG, err.Error()))
+				if err != nil {
+					slog.Error("error while reporting body too long", "error", err, "client", client)
+					return
+				}
 				continue messageLoop
 			default:
-				client.Send(MakeMsg(self, "ERROR", err.Error()))
-				break messageLoop
+				err := client.Send(MakeMsg(self, "ERROR", err.Error()))
+				if err != nil {
+					slog.Error("error while reporting parser error", "error", err, "client", client)
+				}
+				return
 			}
 		}
 
 		handler, ok := commandHandlers[msg.Command]
 		if !ok {
-			client.Send(MakeMsg(self, ERR_UNKNOWNCOMMAND, msg.Command, "Unknown command"))
+			err := client.Send(MakeMsg(self, ERR_UNKNOWNCOMMAND, msg.Command, "Unknown command"))
+			if err != nil {
+				slog.Error("error while reporting unknown command", "error", err, "client", client)
+				return
+			}
 			continue
 		}
 
-		cont := handler(msg, client)
-		if !cont {
-			break
+		err = handler(msg, client)
+		if err != nil {
+			slog.Error("handler error", "error", err, "client", client)
+			return
 		}
 	}
 }

@@ -8,19 +8,24 @@ func init() {
 	commandHandlers["USER"] = handleClientUser
 }
 
-func handleClientUser(msg RMsg, client *Client) bool {
+func handleClientUser(msg RMsg, client *Client) error {
 	if len(msg.Params) < 4 {
-		client.Send(MakeMsg(self, ERR_NEEDMOREPARAMS, "USER", "Not enough parameters"))
-		return true
+		return client.Send(MakeMsg(self, ERR_NEEDMOREPARAMS, "USER", "Not enough parameters"))
 	}
 	switch client.State {
 	case ClientStatePreRegistration:
 		client.Ident = "~" + msg.Params[0]
 		client.Gecos = msg.Params[3]
-		client.checkRegistration()
+		err := client.checkRegistration()
+		if err != nil {
+			return err
+		}
 	case ClientStateRegistered:
-		client.Send(MakeMsg(self, ERR_ALREADYREGISTERED, client.Nick, "You may not reregister"))
+		err := client.Send(MakeMsg(self, ERR_ALREADYREGISTERED, client.Nick, "You may not reregister"))
+		if err != nil {
+			return err
+		}
 	case ClientStateRemote:
 	}
-	return true
+	return nil
 }

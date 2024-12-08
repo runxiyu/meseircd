@@ -23,8 +23,6 @@ func (client *Client) Send(msg SMsg) error {
 	return client.SendRaw(msg.ClientSerialize())
 }
 
-// Send failures are not returned; broken connections detected and severed on
-// the next receive.
 func (client *Client) SendRaw(s string) error {
 	if client.conn == nil {
 		panic("not implemented")
@@ -35,6 +33,7 @@ func (client *Client) SendRaw(s string) error {
 		// TODO: Should shut down the netFd instead but the stdlib
 		// doesn't expose a way to do this.
 		(*client.conn).Close()
+		return err
 	}
 	return nil
 }
@@ -86,14 +85,15 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 	return nil, ErrUIDBusy
 }
 
-func (client *Client) checkRegistration() {
+func (client *Client) checkRegistration() error {
 	if client.State != ClientStatePreRegistration {
 		slog.Error("spurious call to checkRegistration", "client", client)
-		return // TODO: Return an error?
+		return ErrCallState
 	}
 	if client.Nick != "*" && client.Ident != "" {
-		client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
+		return client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
 	}
+	return nil
 }
 
 type ClientState uint8

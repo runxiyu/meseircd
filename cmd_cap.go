@@ -24,7 +24,12 @@ func handleClientCap(msg RMsg, client *Client) error {
 		if client.State == ClientStatePreRegistration {
 			client.State = ClientStateCapabilities
 		}
-		err := client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls))
+		var err error
+		if len(msg.Params) >= 2 && msg.Params[1] == "302" {
+			err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls302))
+		} else {
+			err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls))
+		}
 		// TODO: Split when too long
 		if err != nil {
 			return err

@@ -5,9 +5,13 @@ import (
 	"log"
 	"log/slog"
 	"net"
+	"os"
 )
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	slog.SetDefault(logger)
+
 	self = Server{
 		conn: nil,
 		SID:  [3]byte{'1', 'H', 'C'},
@@ -29,6 +33,7 @@ func main() {
 		client := &Client{
 			conn:   &conn,
 			Server: self,
+			State:  ClientStatePreRegistration,
 		}
 		go func() {
 			defer func() {
@@ -56,6 +61,7 @@ messageLoop:
 			(*client.conn).Close()
 			return
 		}
+		slog.Debug("recv", "line", line, "conn", client.conn)
 		msg, err := parseIRCMsg(line)
 		if err != nil {
 			switch err {

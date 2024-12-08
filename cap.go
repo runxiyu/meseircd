@@ -6,8 +6,10 @@ import (
 
 var Caps = map[string]string{}
 
-var capls string
-var capls302 string
+var (
+	capls    string
+	capls302 string
+)
 
 // Can't be in init() because Caps will be registered with init in the future
 // and init()s are executed by filename alphabetical order

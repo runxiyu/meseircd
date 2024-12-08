@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -25,8 +26,13 @@ func handleClientCap(msg RMsg, client *Client) error {
 			client.State = ClientStateCapabilities
 		}
 		var err error
-		if len(msg.Params) >= 2 && msg.Params[1] == "302" {
-			err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls302))
+		if len(msg.Params) >= 2 {
+			capVersion, err := strconv.ParseUint(msg.Params[1], 10, 64)
+			if err == nil && capVersion >= 302 {
+				err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls302))
+			} else {
+				err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls))
+			}
 		} else {
 			err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls))
 		}

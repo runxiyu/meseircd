@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net"
 	"log/slog"
+	"net"
 )
 
 type Server struct {

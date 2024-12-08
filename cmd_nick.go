@@ -28,5 +28,8 @@ func handleClientNick(msg RMsg, client *Client) bool {
 		}
 		client.Nick = msg.Params[0]
 	}
+	if client.State == ClientStatePreRegistration {
+		client.checkRegistration()
+	}
 	return true
 }

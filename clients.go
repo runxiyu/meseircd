@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net"
 	"log/slog"
+	"net"
 	"sync"
 )
 
@@ -11,6 +11,7 @@ type Client struct {
 	UID    string
 	Nick   string
 	Ident  string
+	Gecos  string
 	Host   string
 	Server Server
 	State  ClientState
@@ -54,6 +55,16 @@ func (client *Client) Teardown() {
 	}
 	if !nickToClient.CompareAndDelete(client.Nick, client) {
 		slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+	}
+}
+
+func (client *Client) checkRegistration() {
+	if client.State != ClientStatePreRegistration {
+		slog.Error("spurious call to checkRegistration", "client", client)
+		return // TODO: Return an error?
+	}
+	if client.Nick != "*" && client.Ident != "" {
+		client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
 	}
 }
 

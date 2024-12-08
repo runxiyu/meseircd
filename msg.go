@@ -114,12 +114,3 @@ func parseIRCMsg(line string) (msg Msg, err error) {
 
 	return
 }
-
-func isASCII(str string) bool {
-	for i := 0; i < len(str); i++ {
-		if str[i] > 127 {
-			return false
-		}
-	}
-	return true
-}

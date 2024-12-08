@@ -6,3 +6,12 @@ func trimInitialSpaces(line string) string {
 	}
 	return line[i:]
 }
+
+func isASCII(str string) bool {
+	for i := 0; i < len(str); i++ {
+		if str[i] > 127 {
+			return false
+		}
+	}
+	return true
+}

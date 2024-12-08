@@ -32,7 +32,8 @@ func parseTags(tagsString string) (tags map[string]string, err error) {
 		// "Implementations [...] MUST NOT perform any validation that would
 		//  reject the message if an invalid tag key name is used."
 		if validateTagName(tagName) {
-			if !validateTagValue(tagValue) {
+			// "Tag values MUST be encoded as UTF8."
+			if !utf8.ValidString(tagValue) {
 				err = ErrInvalidTagContent
 				return
 			}
@@ -113,7 +114,3 @@ func validateTagName(name string) bool {
 	return true
 }
 
-// "Tag values MUST be encoded as UTF8."
-func validateTagValue(value string) bool {
-	return utf8.ValidString(value)
-}

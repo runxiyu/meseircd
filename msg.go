@@ -24,7 +24,7 @@ type SMsg struct {
 }
 
 func (msg *SMsg) ClientSerialize() (final string) {
-	if msg.Tags != nil && len(msg.Tags) != 0 {
+	if len(msg.Tags) != 0 {
 		final = "@"
 		for k, v := range msg.Tags {
 			// TODO: Tag values must be escaped
@@ -48,7 +48,7 @@ func (msg *SMsg) ClientSerialize() (final string) {
 }
 
 func (msg *SMsg) ServerSerialize() (final string) {
-	if msg.Tags != nil && len(msg.Tags) != 0 {
+	if len(msg.Tags) != 0 {
 		final = "@"
 		for k, v := range msg.Tags {
 			// TODO: Tag values must be escaped

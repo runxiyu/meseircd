@@ -30,25 +30,22 @@ func main() {
 			log.Fatal(err)
 		}
 
-		client := &Client{
-			conn:   &conn,
-			Server: self,
-			State:  ClientStatePreRegistration,
-			UID:    "blah",
-			Nick:   "*",
-		}
-		// TODO: Add to the UID table and make actually unique UIDs
 		go func() {
-			defer func() {
-				client.Teardown()
-				(*client.conn).Close()
-				// TODO: Unified client clean-up
-			}()
 			defer func() {
 				raised := recover()
 				if raised != nil {
 					slog.Error("connection routine panicked", "raised", raised)
 				}
+			}()
+			defer func() {
+				conn.Close()
+			}()
+			client, err := NewLocalClient(&conn)
+			if err != nil {
+				slog.Error("cannot make new local client", "error", err)
+			}
+			defer func() {
+				client.Teardown()
 			}()
 			client.handleConnection()
 		}()

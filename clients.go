@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"log/slog"
+	"math/big"
 	"net"
 	"sync"
 )
@@ -56,6 +58,32 @@ func (client *Client) Teardown() {
 	if !nickToClient.CompareAndDelete(client.Nick, client) {
 		slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
 	}
+}
+
+func NewLocalClient(conn *net.Conn) (*Client, error) {
+	client := &Client{
+		conn:   conn,
+		Server: self,
+		State:  ClientStatePreRegistration,
+		Nick:   "*",
+	}
+	for _ = range 10 {
+		var uid_ = []byte(self.SID)
+		for _ = range 6 {
+			randint, err := rand.Int(rand.Reader, big.NewInt(26))
+			if err != nil {
+				return nil, err
+			}
+			uid_ = append(uid_, byte(65 + randint.Uint64()))
+		}
+		uid := string(uid_)
+		_, exists := uidToClient.LoadOrStore(uid, client)
+		if !exists {
+			client.UID = uid
+			return client, nil
+		}
+	}
+	return nil, ErrUIDBusy
 }
 
 func (client *Client) checkRegistration() {

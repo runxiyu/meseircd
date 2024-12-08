@@ -12,4 +12,5 @@ var (
 	ErrBodyTooLong        = errors.New("body too long")
 	ErrNotConnectedServer = errors.New("not connected server")
 	ErrSendToSelf         = errors.New("attempt to send message to self")
+	ErrUIDBusy            = errors.New("too many busy uids")
 )

@@ -9,6 +9,6 @@ func handleClientPing(msg RMsg, client *Client) bool {
 		client.Send(MakeMsg(self, ERR_NEEDMOREPARAMS, "PING", "Not enough parameters"))
 		return true
 	}
-	client.Send(MakeMsg(self, "PONG", msg.Params[0]))
+	client.Send(MakeMsg(self, "PONG", self.Name, msg.Params[0]))
 	return true
 }

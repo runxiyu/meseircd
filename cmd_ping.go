@@ -1,7 +1,7 @@
 package main
 
 func init() {
-	commandHandlers["PING"] = handleClientPing
+	CommandHandlers["PING"] = handleClientPing
 }
 
 func handleClientPing(msg RMsg, client *Client) error {

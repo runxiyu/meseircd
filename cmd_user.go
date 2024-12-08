@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	commandHandlers["USER"] = handleClientUser
+	CommandHandlers["USER"] = handleClientUser
 }
 
 func handleClientUser(msg RMsg, client *Client) error {

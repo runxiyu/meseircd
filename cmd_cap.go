@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	commandHandlers["CAP"] = handleClientCap
+	CommandHandlers["CAP"] = handleClientCap
 }
 
 func handleClientCap(msg RMsg, client *Client) error {

@@ -91,7 +91,7 @@ messageLoop:
 			}
 		}
 
-		handler, ok := commandHandlers[msg.Command]
+		handler, ok := CommandHandlers[msg.Command]
 		if !ok {
 			err := client.Send(MakeMsg(self, ERR_UNKNOWNCOMMAND, msg.Command, "Unknown command"))
 			if err != nil {

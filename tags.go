@@ -1,7 +1,5 @@
 // Almost everything in this file is adapted from Ergo IRCd
 // This is probably considered a derived work for copyright purposes
-//
-// SPDX-License-Identifier: MIT
 
 package main
 

@@ -113,4 +113,3 @@ func validateTagName(name string) bool {
 	}
 	return true
 }
-

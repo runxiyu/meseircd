@@ -4,10 +4,11 @@ func init() {
 	commandHandlers["PING"] = handleClientPing
 }
 
-func handleClientPing(msg RMsg, client *Client) (error) {
+func handleClientPing(msg RMsg, client *Client) bool {
 	if len(msg.Params) < 1 {
-		client.Send(SMsg{Command: ERR_NEEDMOREPARAMS, Params: []string{"PING", "Not enough parameters"}})
+		client.Send(MakeMsg(self, ERR_NEEDMOREPARAMS, "PING", "Not enough parameters"))
+		return true
 	}
-	client.Send(SMsg{Command: "PONG", Params: []string{msg.Params[0]}})
-	return nil
+	client.Send(MakeMsg(self, "PONG", msg.Params[0]))
+	return true
 }

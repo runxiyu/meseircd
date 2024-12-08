@@ -5,8 +5,12 @@ import (
 )
 
 type Client struct {
-	conn net.Conn
-	uid  [6]byte
+	conn   net.Conn
+	UID    [6]byte
+	Nick   string
+	Ident  string
+	Host   string
+	Server Server
 }
 
 func (client *Client) Send(msg SMsg) {
@@ -22,4 +26,13 @@ func (client *Client) SendRaw(s string) {
 		// doesn't expose a way to do this.
 		client.conn.Close()
 	}
+}
+
+func (client Client) ClientSource() string {
+	// TODO: Edge cases where these aren't available
+	return client.Nick + "!" + client.Ident + "@" + client.Host
+}
+
+func (client Client) ServerSource() string {
+	return string(client.Server.SID[:]) + string(client.UID[:])
 }

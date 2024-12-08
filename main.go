@@ -8,6 +8,12 @@ import (
 )
 
 func main() {
+	self = Server{
+		conn: nil,
+		SID:  [3]byte{'1', 'H', 'C'},
+		Name: "irc.runxiyu.org",
+	}
+
 	listener, err := net.Listen("tcp", ":6667")
 	if err != nil {
 		log.Fatal(err)
@@ -21,7 +27,8 @@ func main() {
 		}
 
 		client := &Client{
-			conn: conn,
+			conn:   conn,
+			Server: self,
 		}
 		go func() {
 			defer func() {
@@ -41,7 +48,8 @@ func main() {
 
 func (client *Client) handleConnection() {
 	reader := bufio.NewReader(client.conn)
-	messageLoop: for {
+messageLoop:
+	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			slog.Error("error while reading from connection", "error", err)
@@ -50,32 +58,31 @@ func (client *Client) handleConnection() {
 		}
 		msg, err := parseIRCMsg(line)
 		if err != nil {
-			switch (err) {
+			switch err {
 			case ErrEmptyMessage:
 				continue messageLoop
 			case ErrIllegalByte:
-				client.Send(SMsg{Command: "ERROR", Params: []string{err.Error()}})
+				client.Send(MakeMsg(self, "ERROR", err.Error()))
 				break messageLoop
 			case ErrTagsTooLong:
 				fallthrough
 			case ErrBodyTooLong:
-				client.Send(SMsg{Command: ERR_INPUTTOOLONG, Params: []string{err.Error()}})
+				client.Send(MakeMsg(self, ERR_INPUTTOOLONG, err.Error()))
 				continue messageLoop
 			default:
-				client.Send(SMsg{Command: "ERROR", Params: []string{err.Error()}})
+				client.Send(MakeMsg(self, "ERROR", err.Error()))
 				break messageLoop
 			}
 		}
 
 		handler, ok := commandHandlers[msg.Command]
 		if !ok {
-			client.Send(SMsg{Command: ERR_UNKNOWNCOMMAND, Params: []string{msg.Command, "Unknown command"}})
+			client.Send(MakeMsg(self, ERR_UNKNOWNCOMMAND, msg.Command, "Unknown command"))
 			continue
 		}
 
-		err = handler(msg, client)
-		if err != nil {
-			client.Send(SMsg{Command: "ERROR", Params: []string{err.Error()}})
+		cont := handler(msg, client)
+		if !cont {
 			break
 		}
 	}

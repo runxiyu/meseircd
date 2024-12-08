@@ -5,10 +5,10 @@ import (
 )
 
 type RMsg struct {
-	RawSource  string
-	Command    string
-	Tags       map[string]string
-	Params     []string
+	RawSource string
+	Command   string
+	Tags      map[string]string
+	Params    []string
 }
 
 type Sourceable interface {
@@ -17,34 +17,63 @@ type Sourceable interface {
 }
 
 type SMsg struct {
-	Source     *Sourceable
-	Command    string
-	Tags       map[string]string
-	Params     []string
+	Source  Sourceable
+	Command string
+	Tags    map[string]string
+	Params  []string
 }
 
 func (msg *SMsg) ClientSerialize() (final string) {
 	if msg.Tags != nil && len(msg.Tags) != 0 {
 		final = "@"
-		for k, v := range msg.Tags{
+		for k, v := range msg.Tags {
 			// TODO: Tag values must be escaped
 			final += k + "=" + v + ";"
 		}
 		final += " "
 	}
 	if msg.Source != nil {
-		final += ":" + (*msg.Source).ClientSource() + " "
+		final += ":" + msg.Source.ClientSource() + " "
 	}
 	final += msg.Command + " "
 
 	if len(msg.Params) > 0 {
-		for i := 0; i < len(msg.Params) - 1; i++ {
+		for i := 0; i < len(msg.Params)-1; i++ {
 			final += msg.Params[i] + " "
 		}
-		final += ":" + msg.Params[len(msg.Params) - 1]
+		final += ":" + msg.Params[len(msg.Params)-1]
 	}
 	final += "\n"
 	return
+}
+
+func (msg *SMsg) ServerSerialize() (final string) {
+	if msg.Tags != nil && len(msg.Tags) != 0 {
+		final = "@"
+		for k, v := range msg.Tags {
+			// TODO: Tag values must be escaped
+			final += k + "=" + v + ";"
+		}
+		final += " "
+	}
+	if msg.Source != nil {
+		final += ":" + msg.Source.ServerSource() + " "
+	}
+	final += msg.Command + " "
+
+	if len(msg.Params) > 0 {
+		for i := 0; i < len(msg.Params)-1; i++ {
+			final += msg.Params[i] + " "
+		}
+		final += ":" + msg.Params[len(msg.Params)-1]
+	}
+	final += "\n"
+	return
+}
+
+func MakeMsg(source Sourceable, command string, params ...string) (msg SMsg) {
+	// TODO: Add tags
+	return SMsg{Source: source, Command: command, Params: params}
 }
 
 // Partially adapted from https://github.com/ergochat/irc-go.git

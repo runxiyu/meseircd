@@ -33,7 +33,7 @@ func init() {
 func handleClientAuthenticate(msg RMsg, client *Client) error {
 	_, ok := client.Caps["sasl"]
 	if !ok {
-		return client.Send(MakeMsg(self, "TODO", "you're trying to sasl without requesting for it"))
+		return client.Send(MakeMsg(self, ERR_SASLFAIL, client.Nick, "SASL authentication failed (capability not requested)"))
 	}
 
 	if len(msg.Params) < 1 {

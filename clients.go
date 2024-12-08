@@ -67,14 +67,14 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 		State:  ClientStatePreRegistration,
 		Nick:   "*",
 	}
-	for _ = range 10 {
-		var uid_ = []byte(self.SID)
-		for _ = range 6 {
+	for range 10 {
+		uid_ := []byte(self.SID)
+		for range 6 {
 			randint, err := rand.Int(rand.Reader, big.NewInt(26))
 			if err != nil {
 				return nil, err
 			}
-			uid_ = append(uid_, byte(65 + randint.Uint64()))
+			uid_ = append(uid_, byte(65+randint.Uint64()))
 		}
 		uid := string(uid_)
 		_, exists := uidToClient.LoadOrStore(uid, client)
@@ -104,5 +104,7 @@ const (
 	ClientStateRegistered
 )
 
-var uidToClient = sync.Map{}
-var nickToClient = sync.Map{}
+var (
+	uidToClient  = sync.Map{}
+	nickToClient = sync.Map{}
+)

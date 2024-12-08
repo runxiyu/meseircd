@@ -13,7 +13,7 @@ func handleClientUser(msg RMsg, client *Client) bool {
 		client.Send(MakeMsg(self, ERR_NEEDMOREPARAMS, "USER", "Not enough parameters"))
 		return true
 	}
-	switch (client.State) {
+	switch client.State {
 	case ClientStatePreRegistration:
 		client.Ident = "~" + msg.Params[0]
 		client.Gecos = msg.Params[3]

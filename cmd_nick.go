@@ -22,7 +22,7 @@ func handleClientNick(msg RMsg, client *Client) error {
 			}
 		}
 	} else {
-		if !nickToClient.CompareAndDelete(client.Nick, client) {
+		if (client.State >= ClientStateRegistered || client.Nick != "*") && !nickToClient.CompareAndDelete(client.Nick, client) {
 			slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
 			return fmt.Errorf("%w: %v", ErrInconsistentClient, client)
 		}
@@ -34,7 +34,7 @@ func handleClientNick(msg RMsg, client *Client) error {
 		}
 		client.Nick = msg.Params[0]
 	}
-	if client.State == ClientStatePreRegistration {
+	if client.State < ClientStateRegistered {
 		err := client.checkRegistration()
 		if err != nil {
 			return err

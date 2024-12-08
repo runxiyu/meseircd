@@ -15,6 +15,7 @@ type Client struct {
 	Ident  string
 	Gecos  string
 	Host   string
+	Caps   map[string]struct{}
 	Server Server
 	State  ClientState
 }
@@ -65,6 +66,7 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 		Server: self,
 		State:  ClientStatePreRegistration,
 		Nick:   "*",
+		Caps:   make(map[string]struct{}),
 	}
 	for range 10 {
 		uid_ := []byte(self.SID)
@@ -86,22 +88,32 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 }
 
 func (client *Client) checkRegistration() error {
-	if client.State != ClientStatePreRegistration {
-		slog.Error("spurious call to checkRegistration", "client", client)
-		return ErrCallState
+	switch client.State {
+	case ClientStatePreRegistration:
+		if client.Nick != "*" && client.Ident != "" {
+			client.State = ClientStateRegistered
+			return client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
+		}
+		return nil // Incomplete for registration
+	case ClientStateCapabilitiesFinished:
+		if client.Nick != "*" && client.Ident != "" {
+			client.State = ClientStateRegistered
+			return client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
+		}
+		return nil
+	default:
+		return nil
 	}
-	if client.Nick != "*" && client.Ident != "" {
-		return client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
-	}
-	return nil
 }
 
 type ClientState uint8
 
 const (
-	ClientStateRemote ClientState = iota
-	ClientStatePreRegistration
+	ClientStatePreRegistration ClientState = iota
+	ClientStateCapabilities
+	ClientStateCapabilitiesFinished
 	ClientStateRegistered
+	ClientStateRemote
 )
 
 var (

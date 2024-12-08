@@ -12,6 +12,8 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	slog.SetDefault(logger)
 
+	setupCapls()
+
 	self = Server{
 		conn: nil,
 		SID:  "001",

@@ -37,9 +37,7 @@ func main() {
 					slog.Error("connection routine panicked", "raised", raised)
 				}
 			}()
-			defer func() {
-				conn.Close()
-			}()
+			defer conn.Close()
 			client, err := NewLocalClient(&conn)
 			if err != nil {
 				slog.Error("cannot make new local client", "error", err)

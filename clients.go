@@ -10,7 +10,7 @@ import (
 
 type Client struct {
 	conn   *net.Conn
-	UID    string
+	CID    string
 	Nick   string
 	Ident  string
 	Gecos  string
@@ -46,15 +46,15 @@ func (client Client) ClientSource() string {
 }
 
 func (client Client) ServerSource() string {
-	return client.UID
+	return client.CID
 }
 
 func (client *Client) Teardown() {
 	if client.conn != nil {
 		(*client.conn).Close()
 	}
-	if !uidToClient.CompareAndDelete(client.UID, client) {
-		slog.Error("uid inconsistent", "uid", client.UID, "client", client)
+	if !cidToClient.CompareAndDelete(client.CID, client) {
+		slog.Error("cid inconsistent", "cid", client.CID, "client", client)
 	}
 	if client.State >= ClientStateRegistered || client.Nick != "*" {
 		if !nickToClient.CompareAndDelete(client.Nick, client) {
@@ -73,22 +73,22 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 		Extra:  make(map[string]any),
 	}
 	for range 10 {
-		uid_ := []byte(self.SID)
+		cid_ := []byte(self.SID)
 		for range 6 {
 			randint, err := rand.Int(rand.Reader, big.NewInt(26))
 			if err != nil {
 				return nil, err
 			}
-			uid_ = append(uid_, byte(65+randint.Uint64()))
+			cid_ = append(cid_, byte(65+randint.Uint64()))
 		}
-		uid := string(uid_)
-		_, exists := uidToClient.LoadOrStore(uid, client)
+		cid := string(cid_)
+		_, exists := cidToClient.LoadOrStore(cid, client)
 		if !exists {
-			client.UID = uid
+			client.CID = cid
 			return client, nil
 		}
 	}
-	return nil, ErrUIDBusy
+	return nil, ErrCIDBusy
 }
 
 func (client *Client) checkRegistration() error {
@@ -136,6 +136,6 @@ const (
 )
 
 var (
-	uidToClient  = sync.Map{}
+	cidToClient  = sync.Map{}
 	nickToClient = sync.Map{}
 )

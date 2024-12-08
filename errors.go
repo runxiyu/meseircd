@@ -12,7 +12,7 @@ var (
 	ErrBodyTooLong        = errors.New("body too long")
 	ErrNotConnectedServer = errors.New("not connected server")
 	ErrSendToSelf         = errors.New("attempt to send message to self")
-	ErrUIDBusy            = errors.New("too many busy uids")
+	ErrCIDBusy            = errors.New("too many busy cids")
 	ErrCallState          = errors.New("invalid call state")
 	ErrInconsistentGlobal = errors.New("inconsistent global state")
 	ErrInconsistentClient = errors.New("inconsistent client state")

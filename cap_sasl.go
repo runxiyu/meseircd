@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/base64"
 	"bytes"
+	"encoding/base64"
 )
 
 type ExtraSasl struct {

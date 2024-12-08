@@ -56,7 +56,7 @@ func (client *Client) Teardown() {
 	if !uidToClient.CompareAndDelete(client.UID, client) {
 		slog.Error("uid inconsistent", "uid", client.UID, "client", client)
 	}
-	if (client.State >= ClientStateRegistered || client.Nick != "*") {
+	if client.State >= ClientStateRegistered || client.Nick != "*" {
 		if !nickToClient.CompareAndDelete(client.Nick, client) {
 			slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
 		}
@@ -94,20 +94,35 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 func (client *Client) checkRegistration() error {
 	switch client.State {
 	case ClientStatePreRegistration:
-		if client.Nick != "*" && client.Ident != "" {
-			client.State = ClientStateRegistered
-			return client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
-		}
-		return nil // Incomplete for registration
 	case ClientStateCapabilitiesFinished:
-		if client.Nick != "*" && client.Ident != "" {
-			client.State = ClientStateRegistered
-			return client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome"))
-		}
-		return nil
 	default:
 		return nil
 	}
+	if client.Nick == "*" || client.Ident == "" {
+		return nil
+	}
+	client.State = ClientStateRegistered
+	err := client.Send(MakeMsg(self, RPL_WELCOME, client.Nick, "Welcome to the rxIRC network, "+client.Nick))
+	if err != nil {
+		return err
+	}
+	err = client.Send(MakeMsg(self, RPL_YOURHOST, client.Nick, "Your host is "+self.Name+", running version "+VERSION))
+	if err != nil {
+		return err
+	}
+	err = client.Send(MakeMsg(self, RPL_CREATED, client.Nick, "This server was created 1970-01-01 00:00:00 UTC"))
+	if err != nil {
+		return err
+	}
+	err = client.Send(MakeMsg(self, RPL_MYINFO, client.Nick, self.Name, VERSION, "", "", ""))
+	if err != nil {
+		return err
+	}
+	err = client.Send(MakeMsg(self, RPL_ISUPPORT, "YAY=", "are supported by this server"))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type ClientState uint8

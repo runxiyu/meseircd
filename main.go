@@ -42,9 +42,7 @@ func main() {
 			if err != nil {
 				slog.Error("cannot make new local client", "error", err)
 			}
-			defer func() {
-				client.Teardown()
-			}()
+			defer client.Teardown()
 			client.handleConnection()
 		}()
 	}

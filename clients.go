@@ -3,11 +3,12 @@ package main
 import (
 	"net"
 	"log/slog"
+	"sync"
 )
 
 type Client struct {
 	conn   *net.Conn
-	UID    [6]byte
+	UID    string
 	Nick   string
 	Ident  string
 	Host   string
@@ -41,7 +42,7 @@ func (client Client) ClientSource() string {
 }
 
 func (client Client) ServerSource() string {
-	return string(client.Server.SID[:]) + string(client.UID[:])
+	return client.UID
 }
 
 type ClientState uint8
@@ -51,3 +52,6 @@ const (
 	ClientStatePreRegistration
 	ClientStateRegistered
 )
+
+var uidToClient = sync.Map{}
+var nickToClient = sync.Map{}

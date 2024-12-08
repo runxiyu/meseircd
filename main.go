@@ -14,7 +14,7 @@ func main() {
 
 	self = Server{
 		conn: nil,
-		SID:  [3]byte{'1', 'H', 'C'},
+		SID:  "001",
 		Name: "irc.runxiyu.org",
 	}
 
@@ -34,7 +34,10 @@ func main() {
 			conn:   &conn,
 			Server: self,
 			State:  ClientStatePreRegistration,
+			UID:    "blah",
+			Nick:   "*",
 		}
+		// TODO: Add to the UID table and make actually unique UIDs
 		go func() {
 			defer func() {
 				(*client.conn).Close()

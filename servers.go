@@ -7,7 +7,7 @@ import (
 
 type Server struct {
 	conn *net.Conn
-	SID  [3]byte
+	SID  string
 	Name string
 }
 
@@ -39,7 +39,7 @@ func (server Server) ClientSource() string {
 }
 
 func (server Server) ServerSource() string {
-	return string(server.SID[:])
+	return server.SID
 }
 
 var self Server

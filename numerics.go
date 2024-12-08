@@ -1,0 +1,7 @@
+package main
+
+const (
+	ERR_UNKNOWNCOMMAND = "421"
+	ERR_INPUTTOOLONG   = "417"
+	ERR_NEEDMOREPARAMS = "461"
+)

@@ -4,19 +4,52 @@ import (
 	"strings"
 )
 
-type Msg struct {
-	RawMessage string
+type RMsg struct {
 	RawSource  string
 	Command    string
 	Tags       map[string]string
 	Params     []string
 }
 
-// Partially adapted from https://github.com/ergochat/irc-go.git
-func parseIRCMsg(line string) (msg Msg, err error) {
-	msg = Msg{
-		RawMessage: line,
+type Sourceable interface {
+	ClientSource() string
+	ServerSource() string
+}
+
+type SMsg struct {
+	Source     *Sourceable
+	Command    string
+	Tags       map[string]string
+	Params     []string
+}
+
+func (msg *SMsg) ClientSerialize() (final string) {
+	if msg.Tags != nil && len(msg.Tags) != 0 {
+		final = "@"
+		for k, v := range msg.Tags{
+			// TODO: Tag values must be escaped
+			final += k + "=" + v + ";"
+		}
+		final += " "
 	}
+	if msg.Source != nil {
+		final += ":" + (*msg.Source).ClientSource() + " "
+	}
+	final += msg.Command + " "
+
+	if len(msg.Params) > 0 {
+		for i := 0; i < len(msg.Params) - 1; i++ {
+			final += msg.Params[i] + " "
+		}
+		final += ":" + msg.Params[len(msg.Params) - 1]
+	}
+	final += "\n"
+	return
+}
+
+// Partially adapted from https://github.com/ergochat/irc-go.git
+func parseIRCMsg(line string) (msg RMsg, err error) {
+	msg = RMsg{}
 
 	line = strings.TrimSuffix(line, "\n")
 	line = strings.TrimSuffix(line, "\r")

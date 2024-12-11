@@ -27,7 +27,7 @@ func (client *Client) SendRaw(s string) error {
 	if client.conn == nil {
 		panic("not implemented")
 	}
-	slog.Debug("send", "line", s, "conn", client.conn)
+	slog.Debug("send", "line", s, "client", client.CID)
 	_, err := (*client.conn).Write([]byte(s))
 	if err != nil {
 		// TODO: Should shut down the netFd instead but the stdlib

@@ -62,7 +62,7 @@ messageLoop:
 			(*client.conn).Close()
 			return
 		}
-		slog.Debug("recv", "line", line, "conn", client.conn)
+		slog.Debug("recv", "line", line, "client", client.CID)
 		msg, err := parseIRCMsg(line)
 		if err != nil {
 			switch err {

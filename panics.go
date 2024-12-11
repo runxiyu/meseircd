@@ -1,5 +1,6 @@
 package main
 
 const (
-	panicType = "type error"
+	panicType           = "type error"
+	panicNotImplemented = "not implemented"
 )

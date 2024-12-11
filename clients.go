@@ -1,16 +1,14 @@
 package main
 
 import (
-	"crypto/rand"
 	"log/slog"
-	"math/big"
 	"net"
 	"sync"
 )
 
 type Client struct {
 	conn   *net.Conn
-	CID    string
+	CID    uint64
 	Nick   string
 	Ident  string
 	Gecos  string
@@ -45,7 +43,7 @@ func (client *Client) ClientSource() string {
 	return client.Nick + "!" + client.Ident + "@" + client.Host
 }
 
-func (client *Client) ServerSource() string {
+func (client *Client) ServerSource() uint64 {
 	return client.CID
 }
 
@@ -64,6 +62,16 @@ func (client *Client) Teardown() {
 }
 
 func NewLocalClient(conn *net.Conn) (*Client, error) {
+	var cidPart uint32
+	{
+		cidPartCountLock.Lock()
+		defer cidPartCountLock.Unlock()
+		if cidPartCount == ^uint32(0) { // UINT32_MAX
+			return nil, ErrFullClients
+		}
+		cidPartCount++
+		cidPart = cidPartCount
+	}
 	client := &Client{
 		conn:   conn,
 		Server: self,
@@ -71,24 +79,9 @@ func NewLocalClient(conn *net.Conn) (*Client, error) {
 		Nick:   "*",
 		Caps:   make(map[string]struct{}),
 		Extra:  make(map[string]any),
+		CID:    uint64(self.SID)<<32 | uint64(cidPart),
 	}
-	for range 10 {
-		cid_ := []byte(self.SID)
-		for range 6 {
-			randint, err := rand.Int(rand.Reader, big.NewInt(26))
-			if err != nil {
-				return nil, err
-			}
-			cid_ = append(cid_, byte(65+randint.Uint64()))
-		}
-		cid := string(cid_)
-		_, exists := cidToClient.LoadOrStore(cid, client)
-		if !exists {
-			client.CID = cid
-			return client, nil
-		}
-	}
-	return nil, ErrCIDBusy
+	return client, nil
 }
 
 func (client *Client) checkRegistration() error {
@@ -136,6 +129,8 @@ const (
 )
 
 var (
-	cidToClient  = sync.Map{}
-	nickToClient = sync.Map{}
+	cidToClient      = sync.Map{}
+	nickToClient     = sync.Map{}
+	cidPartCount     uint32
+	cidPartCountLock sync.Mutex
 )

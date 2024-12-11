@@ -18,7 +18,7 @@ func main() {
 
 	self = &Server{
 		conn: nil,
-		SID:  "001",
+		SID:  0,
 		Name: "irc.runxiyu.org",
 	}
 

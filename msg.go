@@ -13,7 +13,7 @@ type RMsg struct {
 
 type Sourceable interface {
 	ClientSource() string
-	ServerSource() string
+	ServerSource() uint64
 }
 
 type SMsg struct {
@@ -48,27 +48,7 @@ func (msg *SMsg) ClientSerialize() (final string) {
 }
 
 func (msg *SMsg) ServerSerialize() (final string) {
-	if len(msg.Tags) != 0 {
-		final = "@"
-		for k, v := range msg.Tags {
-			// TODO: Tag values must be escaped
-			final += k + "=" + v + ";"
-		}
-		final += " "
-	}
-	if msg.Source != nil {
-		final += ":" + msg.Source.ServerSource() + " "
-	}
-	final += msg.Command + " "
-
-	if len(msg.Params) > 0 {
-		for i := 0; i < len(msg.Params)-1; i++ {
-			final += msg.Params[i] + " "
-		}
-		final += ":" + msg.Params[len(msg.Params)-1]
-	}
-	final += "\n"
-	return
+	panic(panicNotImplemented)
 }
 
 func MakeMsg(source Sourceable, command string, params ...string) (msg SMsg) {

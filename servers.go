@@ -7,7 +7,7 @@ import (
 
 type Server struct {
 	conn *net.Conn
-	SID  string
+	SID  uint32
 	Name string
 }
 
@@ -38,8 +38,8 @@ func (server *Server) ClientSource() string {
 	return server.Name
 }
 
-func (server *Server) ServerSource() string {
-	return server.SID
+func (server *Server) ServerSource() uint64 {
+	return uint64(server.SID) << 32
 }
 
 var self *Server

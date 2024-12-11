@@ -33,6 +33,9 @@ func handleClientCap(msg RMsg, client *Client) error {
 			} else {
 				err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls))
 			}
+			if err != nil {
+				return err
+			}
 		} else {
 			err = client.Send(MakeMsg(self, "CAP", client.Nick, "LS", capls))
 		}

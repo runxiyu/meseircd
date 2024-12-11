@@ -17,4 +17,5 @@ var (
 	ErrInconsistentGlobal = errors.New("inconsistent global state")
 	ErrInconsistentClient = errors.New("inconsistent client state")
 	ErrRemoteClient       = errors.New("operation not supported for a remote client")
+	ErrFullClients        = errors.New("this server has/had too many clients")
 )

@@ -1,4 +1,2 @@
-# Only GNU Make is supported
-
-meseircd: *.go
-	go build -o $@
+meseircd: *.go */*.go
+	go build -o meseircd

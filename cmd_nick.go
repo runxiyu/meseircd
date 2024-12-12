@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
+	"git.sr.ht/~runxiyu/meseircd/meselog"
 )
 
 func init() {
@@ -23,7 +23,7 @@ func handleClientNick(msg RMsg, client *Client) error {
 		}
 	} else {
 		if (client.State >= ClientStateRegistered || client.Nick != "*") && !nickToClient.CompareAndDelete(client.Nick, client) {
-			slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+			meselog.Error("nick inconsistent", "nick", client.Nick, "client", client)
 			return fmt.Errorf("%w: %v", ErrInconsistentClient, client)
 		}
 		if client.State == ClientStateRegistered {

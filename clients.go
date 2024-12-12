@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log/slog"
 	"net"
 	"sync"
+
+	"git.sr.ht/~runxiyu/meseircd/meselog"
 )
 
 type Client struct {
@@ -27,7 +28,7 @@ func (client *Client) SendRaw(s string) error {
 	if client.conn == nil {
 		panic("not implemented")
 	}
-	slog.Debug("send", "line", s, "client", client.CID)
+	meselog.Debug("send", "line", s, "client", client.CID)
 	_, err := (*client.conn).Write([]byte(s))
 	if err != nil {
 		// TODO: Should shut down the netFd instead but the stdlib
@@ -52,11 +53,11 @@ func (client *Client) Teardown() {
 		(*client.conn).Close()
 	}
 	if !cidToClient.CompareAndDelete(client.CID, client) {
-		slog.Error("cid inconsistent", "cid", client.CID, "client", client)
+		meselog.Error("cid inconsistent", "cid", client.CID, "client", client)
 	}
 	if client.State >= ClientStateRegistered || client.Nick != "*" {
 		if !nickToClient.CompareAndDelete(client.Nick, client) {
-			slog.Error("nick inconsistent", "nick", client.Nick, "client", client)
+			meselog.Error("nick inconsistent", "nick", client.Nick, "client", client)
 		}
 	}
 }

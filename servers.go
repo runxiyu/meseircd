@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log/slog"
 	"net"
+
+	"git.sr.ht/~runxiyu/meseircd/meselog"
 )
 
 type Server struct {
@@ -23,7 +24,7 @@ func (server *Server) SendRaw(s string) error {
 		// TODO: Propagate across mesh
 		return ErrNotConnectedServer
 	}
-	slog.Debug("send", "line", s, "conn", server.conn)
+	meselog.Debug("send", "line", s, "conn", server.conn)
 	_, err := (*server.conn).Write([]byte(s))
 	if err != nil {
 		// TODO: Should shut down the netFd instead but the stdlib

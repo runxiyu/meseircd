@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"git.sr.ht/~runxiyu/meseircd/meselog"
 )
 
